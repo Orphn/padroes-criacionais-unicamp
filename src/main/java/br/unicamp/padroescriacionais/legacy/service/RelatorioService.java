@@ -4,9 +4,9 @@ import br.unicamp.padroescriacionais.legacy.domain.ConfiguracaoSistema;
 import br.unicamp.padroescriacionais.legacy.domain.FormatoRelatorio;
 import br.unicamp.padroescriacionais.legacy.domain.Relatorio;
 import br.unicamp.padroescriacionais.legacy.domain.TipoRelatorio;
-import br.unicamp.padroescriacionais.legacy.generator.CsvRelatorioGenerator;
-import br.unicamp.padroescriacionais.legacy.generator.JsonRelatorioGenerator;
-import br.unicamp.padroescriacionais.legacy.generator.PdfRelatorioGenerator;
+import br.unicamp.padroescriacionais.legacy.factory.GeradorRegistry;
+import br.unicamp.padroescriacionais.legacy.factory.IRelatorioGeneratorFactory;
+import br.unicamp.padroescriacionais.legacy.generator.IRelatorioGenerator;
 
 import java.time.LocalDateTime;
 
@@ -16,8 +16,7 @@ public class RelatorioService {
             "Empresa XPTO",
             "DEV",
             "/tmp/relatorios",
-            false
-    );
+            false);
 
     public Relatorio criarRelatorio(TipoRelatorio tipo) {
         String titulo;
@@ -50,37 +49,29 @@ public class RelatorioService {
             System.out.println("[DEBUG-RelatorioService] Gerando: " + tipo + " -> " + formato);
         }
 
-        if (formato == FormatoRelatorio.PDF) {
-            PdfRelatorioGenerator generator = new PdfRelatorioGenerator();
-            return generator.gerar(relatorio);
-        } else if (formato == FormatoRelatorio.CSV) {
-            CsvRelatorioGenerator generator = new CsvRelatorioGenerator();
-            return generator.gerar(relatorio);
-        } else if (formato == FormatoRelatorio.JSON) {
-            JsonRelatorioGenerator generator = new JsonRelatorioGenerator();
-            return generator.gerar(relatorio);
-        } else {
-            throw new IllegalArgumentException("Formato desconhecido: " + formato);
-        }
+        IRelatorioGeneratorFactory factory = GeradorRegistry.getFactory(formato);
+        IRelatorioGenerator generator = factory.criarGerador();
+
+        return generator.gerar(relatorio);
     }
 
     private String gerarConteudoVendas() {
         return "Produto A: 150 unidades vendidas - R$ 12.000,00\n"
-             + "Produto B: 230 unidades vendidas - R$ 23.000,00\n"
-             + "Produto C:  80 unidades vendidas - R$ 10.000,00\n"
-             + "Total geral: R$ 45.000,00";
+                + "Produto B: 230 unidades vendidas - R$ 23.000,00\n"
+                + "Produto C:  80 unidades vendidas - R$ 10.000,00\n"
+                + "Total geral: R$ 45.000,00";
     }
 
     private String gerarConteudoEstoque() {
         return "Item X: 500 unidades disponiveis\n"
-             + "Item Y: 120 unidades disponiveis\n"
-             + "Item Z:  80 unidades disponiveis (estoque critico)";
+                + "Item Y: 120 unidades disponiveis\n"
+                + "Item Z:  80 unidades disponiveis (estoque critico)";
     }
 
     private String gerarConteudoClientes() {
         return "Cliente 001: Joao Silva       - ativo\n"
-             + "Cliente 002: Maria Santos     - ativo\n"
-             + "Cliente 003: Pedro Oliveira   - inativo\n"
-             + "Total: 3 clientes cadastrados";
+                + "Cliente 002: Maria Santos     - ativo\n"
+                + "Cliente 003: Pedro Oliveira   - inativo\n"
+                + "Total: 3 clientes cadastrados";
     }
 }

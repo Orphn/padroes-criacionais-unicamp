@@ -2,8 +2,9 @@ package br.unicamp.padroescriacionais.legacy.generator;
 
 import br.unicamp.padroescriacionais.legacy.domain.Relatorio;
 
-public class JsonRelatorioGenerator {
+public class JsonRelatorioGenerator implements IRelatorioGenerator {
 
+    @Override
     public String gerar(Relatorio relatorio) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
@@ -16,7 +17,8 @@ public class JsonRelatorioGenerator {
     }
 
     private String jsonString(String valor) {
-        if (valor == null) return "null";
+        if (valor == null)
+            return "null";
         return "\"" + valor.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
     }
 }

@@ -9,63 +9,57 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConfiguracaoSistemaTest {
 
     @Test
-    void deveCriarConfiguracaoComValoresInformados() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema(
-                "Empresa Teste",
-                "DEV",
-                "/tmp/test",
-                true
-        );
+    void deveRetornarSempreAMesmaInstancia() {
+        ConfiguracaoSistema config1 = ConfiguracaoSistema.getInstancia();
+        ConfiguracaoSistema config2 = ConfiguracaoSistema.getInstancia();
 
-        assertEquals("Empresa Teste", config.getNomeEmpresa());
-        assertEquals("DEV", config.getAmbiente());
-        assertEquals("/tmp/test", config.getDiretorioExportacao());
-        assertTrue(config.isDebugAtivo());
+        assertSame(config1, config2);
     }
 
     @Test
     void devePermitirAlteracaoDeAmbiente() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+        ConfiguracaoSistema config = ConfiguracaoSistema.getInstancia();
+        String ambienteOriginal = config.getAmbiente();
+
         config.setAmbiente("PROD");
 
         assertEquals("PROD", config.getAmbiente());
+        config.setAmbiente(ambienteOriginal);
     }
 
     @Test
     void devePermitirAlteracaoDeDebug() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+        ConfiguracaoSistema config = ConfiguracaoSistema.getInstancia();
+        boolean debugOriginal = config.isDebugAtivo();
+
         config.setDebugAtivo(true);
 
         assertTrue(config.isDebugAtivo());
+        config.setDebugAtivo(debugOriginal);
     }
 
     @Test
     void devePermitirAlteracaoDeDiretorio() {
-        ConfiguracaoSistema config = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+        ConfiguracaoSistema config = ConfiguracaoSistema.getInstancia();
+        String diretorioOriginal = config.getDiretorioExportacao();
+
         config.setDiretorioExportacao("/novo/diretorio");
 
         assertEquals("/novo/diretorio", config.getDiretorioExportacao());
+        config.setDiretorioExportacao(diretorioOriginal);
     }
 
     @Test
-    void duasInstanciasIndependentesPodemTerAmbientesDiferentes() {
-        ConfiguracaoSistema configDev = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", true);
-        ConfiguracaoSistema configProd = new ConfiguracaoSistema("Empresa", "PROD", "/exports", false);
-
-        assertNotEquals(configDev.getAmbiente(), configProd.getAmbiente());
-        assertNotEquals(configDev.getDiretorioExportacao(), configProd.getDiretorioExportacao());
-        assertNotEquals(configDev.isDebugAtivo(), configProd.isDebugAtivo());
-    }
-
-    @Test
-    void alteracaoEmUmaInstanciaNaoAfetaOutra() {
-        ConfiguracaoSistema config1 = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
-        ConfiguracaoSistema config2 = new ConfiguracaoSistema("Empresa", "DEV", "/tmp", false);
+    void alteracaoEmUmaReferenciaAfetaTodas() {
+        ConfiguracaoSistema config1 = ConfiguracaoSistema.getInstancia();
+        ConfiguracaoSistema config2 = ConfiguracaoSistema.getInstancia();
+        String ambienteOriginal = config1.getAmbiente();
 
         config1.setAmbiente("PROD");
 
         assertEquals("PROD", config1.getAmbiente());
-        assertEquals("DEV", config2.getAmbiente());
+        assertEquals("PROD", config2.getAmbiente());
+        config1.setAmbiente(ambienteOriginal);
     }
 
     @Test
@@ -73,5 +67,6 @@ class ConfiguracaoSistemaTest {
         ConfiguracaoService service = new ConfiguracaoService();
         assertNotNull(service.getConfiguracao());
         assertFalse(service.getConfiguracao().getNomeEmpresa().isBlank());
+        assertSame(ConfiguracaoSistema.getInstancia(), service.getConfiguracao());
     }
 }

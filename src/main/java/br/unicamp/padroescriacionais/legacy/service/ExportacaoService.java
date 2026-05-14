@@ -9,11 +9,7 @@ import br.unicamp.padroescriacionais.legacy.factory.IRelatorioGeneratorFactory;
 
 public class ExportacaoService {
 
-    private ConfiguracaoSistema configuracao = new ConfiguracaoSistema(
-            "Empresa XPTO Ltda.",
-            "PROD",
-            "/var/exports/relatorios",
-            false);
+    private final ConfiguracaoSistema configuracao = ConfiguracaoSistema.getInstancia();
 
     public void exportar(Relatorio relatorio, FormatoRelatorio formato) {
 
